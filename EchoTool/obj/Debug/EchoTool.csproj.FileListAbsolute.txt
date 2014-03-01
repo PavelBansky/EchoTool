@@ -1,0 +1,7 @@
+D:\Projects\EchoTool\EchoTool\obj\Debug\ResolveAssemblyReference.cache
+D:\Projects\EchoTool\EchoTool\obj\Debug\EchoTool.Resources.Messages.resources
+D:\Projects\EchoTool\EchoTool\obj\Debug\EchoTool.csproj.GenerateResource.Cache
+D:\Projects\EchoTool\EchoTool\bin\Debug\echotool.exe
+D:\Projects\EchoTool\EchoTool\bin\Debug\echotool.pdb
+D:\Projects\EchoTool\EchoTool\obj\Debug\echotool.exe
+D:\Projects\EchoTool\EchoTool\obj\Debug\echotool.pdb

@@ -40,4 +40,4 @@ Echo client mode
 
 ## Download  ##
 Stand alone executable
-[echotool.exe](http://bansky.net/echotool/echotool.exe) [30 Kb]
+[http://bansky.net/echotool/echotool.exe](http://bansky.net/echotool/echotool.exe) [30 Kb]

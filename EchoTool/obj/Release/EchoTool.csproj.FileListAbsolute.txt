@@ -1,0 +1,5 @@
+D:\Projects\EchoTool\EchoTool\bin\Release\echotool.exe
+D:\Projects\EchoTool\EchoTool\obj\Release\ResolveAssemblyReference.cache
+D:\Projects\EchoTool\EchoTool\obj\Release\EchoTool.Resources.Messages.resources
+D:\Projects\EchoTool\EchoTool\obj\Release\EchoTool.csproj.GenerateResource.Cache
+D:\Projects\EchoTool\EchoTool\obj\Release\echotool.exe
