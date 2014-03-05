@@ -82,7 +82,7 @@ namespace EchoTool.Modes
             Console.WriteLine(string.Format(Messages.TCPServerCaption, serverPort));
 
             echoServer.Start();            
-            Console.ReadLine();
+            Console.ReadKey(true);
             echoServer.Stop();
         }
 
