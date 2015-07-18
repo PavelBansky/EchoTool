@@ -40,4 +40,4 @@ Echo client mode
 
 ## Download  ##
 Stand alone executable
-[releases/download/v1.5.0.0/echotool-exe.zip](https://github.com/pbansky/EchoTool/releases/download/v1.5.0.0/echotool-exe.zip) [12 Kb]
+[releases/download/v1.5.0.0/echotool.exe](https://github.com/pbansky/EchoTool/releases/download/v1.5.0.0/echotool.exe) [30 Kb]
