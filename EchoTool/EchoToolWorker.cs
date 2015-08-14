@@ -40,7 +40,10 @@ namespace EchoTool
             Console.WriteLine();
 
             if (!DoWork(arguments))
+            {
                 ShowHelp();
+                Console.ReadKey();
+            }
         }
 
         /// <summary>
