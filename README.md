@@ -32,11 +32,6 @@ Use your own echo pattern with /d switch
 	C:\EchoTool> echotool server.to-test.com /p udp /r 4578 /d Hello
                 
 
-Echo server mode
-![server mode image](http://bansky.net/img/echo_server.png)
-
-Echo client mode
-![client mode image](http://bansky.net/img/echo_client.png)
 
 ## Download  ##
 Stand alone executable
