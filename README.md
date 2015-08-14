@@ -35,4 +35,4 @@ Use your own echo pattern with /d switch
 
 ## Download  ##
 Stand alone executable
-[releases/download/v1.5.0.0/echotool.exe](https://github.com/pbansky/EchoTool/releases/download/v1.5.0.0/echotool.exe) [30 Kb]
+[releases/download/v1.6.0-beta.1/echotool.exe](https://github.com/mitoskalandiel/EchoTool/releases/download/v1.6.0-beta.1/echotool.exe) [30 Kb]
