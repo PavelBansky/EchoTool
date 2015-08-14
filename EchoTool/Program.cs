@@ -7,6 +7,12 @@
  *  Author:         Pavel Bansky
  *  Contact:        pavel@bansky.net
  *  Website:        http://bansky.net/echotool
+ *
+ *  Modifications
+ *  -------------
+ *  Author:         Sebastian Meier zu Biesen
+ *  Contact:        sebastian@mitos-kalandiel.me
+ *  Website:        http://mitos-kalandiel.me
  * 
  */
 using System;

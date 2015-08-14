@@ -1,0 +1,6 @@
+C:\Users\smeierzubiesen\Source\Repos\C-Echo\EchoTool\bin\Release\echotool.exe.config
+C:\Users\smeierzubiesen\Source\Repos\C-Echo\EchoTool\bin\Release\echotool.exe
+C:\Users\smeierzubiesen\Source\Repos\C-Echo\EchoTool\obj\Release\EchoTool.csprojResolveAssemblyReference.cache
+C:\Users\smeierzubiesen\Source\Repos\C-Echo\EchoTool\obj\Release\EchoTool.Resources.Messages.resources
+C:\Users\smeierzubiesen\Source\Repos\C-Echo\EchoTool\obj\Release\EchoTool.csproj.GenerateResource.Cache
+C:\Users\smeierzubiesen\Source\Repos\C-Echo\EchoTool\obj\Release\echotool.exe
