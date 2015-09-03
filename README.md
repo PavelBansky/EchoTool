@@ -5,6 +5,8 @@ Command line echo server and client for Windows. This tool is designed according
 
 This software needs .NET 4.0 installed to run. It is however 32bit and 64bit compatible. One exe to rule them all.
 
+Double click the echotoolgui.exe to simply start the gui version, or use the cmd version as mentioned below.
+
 - Server mode
 - Client mode
 - TCP and UDP protocol support
