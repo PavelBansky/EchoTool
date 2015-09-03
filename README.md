@@ -3,6 +3,8 @@ EchoTool - Echo client and server
 
 Command line echo server and client for Windows. This tool is designed according to [RFC 862 specification]([http://www.ietf.org/rfc/rfc0862.txt?number=862]) for Echo protocol. It can operate as a echo server that sends back every incoming data. In client mode, it sends data to the server and checks whether they came back. This is a useful debugging tool for application development or network throughput checks. Application is written in C# and source codes is provided.
 
+This software needs .NET 4.0 installed to run. It is however 32bit and 64bit compatible. One exe to rule them all.
+
 - Server mode
 - Client mode
 - TCP and UDP protocol support
