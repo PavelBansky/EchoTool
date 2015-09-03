@@ -16,7 +16,7 @@ using System.Threading;
 using System.Text;
 using System.IO;
 
-namespace EchoTool.Protocols
+namespace EchoToolCMD.Protocols
 {
     /// <summary>
     /// Implements TCP echo server

@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace EchoTool
+namespace EchoToolCMD
 {
     /// <summary>
     /// Implements functionality to parse switches in command line arguments

@@ -20,9 +20,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using EchoTool.Modes;
+using EchoToolCMD.Modes;
 
-namespace EchoTool
+namespace EchoToolCMD
 {
     class Program
     {        

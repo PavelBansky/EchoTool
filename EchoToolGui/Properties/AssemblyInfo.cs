@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EchoTool")]
-[assembly: AssemblyDescription("Provides TCP, UDP echo server and client")]
+[assembly: AssemblyTitle("EchoToolGui")]
+[assembly: AssemblyDescription(".. a wrapper for EchoTool")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Pavel Bansky")]
-[assembly: AssemblyProduct("EchoTool")]
-[assembly: AssemblyCopyright("Copyright © Pavel Bansky 2007 & Sebastian Meier zu Biesen 2015")]
+[assembly: AssemblyCompany("Joker Solutions")]
+[assembly: AssemblyProduct("EchoToolGui")]
+[assembly: AssemblyCopyright("Copyright © Sebastian Meier zu Biesen 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5d5cadc8-45c6-4d12-ba1d-60d616a5e410")]
+[assembly: Guid("eaf0ba19-afb8-4e85-a1fa-aefc81a8e30d")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.7.0.0")]
-[assembly: AssemblyFileVersion("1.7.0.0")]
+[assembly: AssemblyVersion("1.0.1.0")]
+[assembly: AssemblyFileVersion("1.0.1.3")]

@@ -13,7 +13,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 
-namespace EchoTool.Protocols
+namespace EchoToolCMD.Protocols
 {
     /// <summary>
     /// UDP async state class

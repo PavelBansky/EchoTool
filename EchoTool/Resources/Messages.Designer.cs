@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace EchoTool.Resources {
+namespace EchoToolCMD.Resources {
     using System;
     
     

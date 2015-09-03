@@ -12,12 +12,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using EchoTool.Modes;
+using EchoToolCMD.Modes;
 
-namespace EchoTool
+namespace EchoToolCMD
 {
     /// <summary>
-    /// Implements main EchoTool functionality
+    /// Implements main EchoToolCMD functionality
     /// </summary>
     public class EchoToolWorker
     {
