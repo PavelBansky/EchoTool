@@ -10,8 +10,14 @@ using EchoToolCMD.Modes;
 
 namespace EchoToolGui
 {
+    /// <summary>
+    /// GUI Component
+    /// </summary>
     public partial class ETGui : Form
     {
+        /// <summary>
+        /// This wraps a GUI around the command line tools
+        /// </summary>
         public ETGui()
         {
             InitializeComponent();
