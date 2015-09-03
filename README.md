@@ -38,5 +38,7 @@ Use your own echo pattern with /d switch
 
 
 ## Download  ##
-Stand alone executable
-[releases/download/v1.6.0-beta.1/echotool.exe](https://github.com/mitoskalandiel/EchoTool/releases/download/v1.6.0-beta.1/echotool.exe) [30 Kb]
+Stand alone executable Commandline only
+[releases/download/v1.7.0-alpha.1/echotool.exe](https://github.com/mitoskalandiel/EchoTool/releases/download/v1.7.0-alpha.1/echotool.exe) [30 Kb]
+Stand alone executable GUI (needs the cmd download aswell)
+[releases/download/v1.7.0-alpha.1/EchoToolGui.exe](https://github.com/mitoskalandiel/EchoTool/releases/download/v1.7.0-alpha.1/EchoToolGui.exe) [7 Kb]
