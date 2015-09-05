@@ -13,7 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EchoTool
+namespace EchoToolCMD
 {
     /// <summary>
     /// Usefull static methods

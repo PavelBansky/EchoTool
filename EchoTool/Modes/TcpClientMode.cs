@@ -14,11 +14,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Sockets;
 
-using EchoTool.Protocols;
-using EchoTool.Resources;
+using EchoToolCMD.Protocols;
+using EchoToolCMD.Resources;
 using System.Net;
 
-namespace EchoTool.Modes
+namespace EchoToolCMD.Modes
 {
     /// <summary>
     /// Implements for TCP client UI

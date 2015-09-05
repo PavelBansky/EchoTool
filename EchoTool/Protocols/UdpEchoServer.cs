@@ -15,7 +15,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Text;
 
-namespace EchoTool.Protocols
+namespace EchoToolCMD.Protocols
 {
     /// <summary>
     /// Implements UDP echo server
