@@ -1,4 +1,4 @@
-﻿/* 
+/* 
  *  Name:           Echo Tool
  *  
  *  Description:    Application provides functionality of the echo server and client.
