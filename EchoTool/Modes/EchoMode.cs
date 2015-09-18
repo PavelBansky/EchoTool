@@ -9,7 +9,7 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
-namespace EchoToolCMD.Modes
+namespace EchoTool.Modes
 {
     public interface IEchoMode
     {

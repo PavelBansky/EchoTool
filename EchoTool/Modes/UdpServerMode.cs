@@ -9,26 +9,27 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
+
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using EchoTool.Protocols;
+using EchoTool.Resources;
 
-using EchoToolCMD.Protocols;
-using EchoToolCMD.Resources;
-
-namespace EchoToolCMD.Modes
+namespace EchoTool.Modes
 {
     /// <summary>
     /// Implements functionality for UDP server UI
     /// </summary>
     public class UdpServerMode : IEchoMode
     {
-        const int LISTEN_PORT = 7;
+        const int ListenPort = 7;
 
         #region Fields
-        Arguments arguments;
-        int serverPort = LISTEN_PORT;
+
+        readonly Arguments _arguments;
+        int _serverPort = ListenPort;
         #endregion
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace EchoToolCMD.Modes
         /// <param name="arguments">Arguments to server</param>
         public UdpServerMode(Arguments arguments)
         {
-            this.arguments = arguments;
+            _arguments = arguments;
         }
 
         /// <summary>
@@ -46,14 +47,14 @@ namespace EchoToolCMD.Modes
         /// <returns>Returns true if server is ready</returns>
         public bool ParseArguments()
         {
-            string strServerPort = arguments.Get("/s", LISTEN_PORT.ToString());
+            var strServerPort = _arguments.Get("/s", ListenPort.ToString());
 
             if (Utils.IsNumber(strServerPort))
-                serverPort = Convert.ToInt32(strServerPort);
+                _serverPort = Convert.ToInt32(strServerPort);
             else
                 return false;
-                
-            if (serverPort > 65535)
+
+            if (_serverPort > 65535)
                 return false;
 
             return true;
@@ -64,11 +65,11 @@ namespace EchoToolCMD.Modes
         /// </summary>
         public void Run()
         {
-            UdpEchoServer echoServer = new UdpEchoServer(serverPort);
-            echoServer.OnDataReceived += new UdpEchoServer.DataReceivedDelegate(echoServer_OnDataReceived);
-            echoServer.OnSocketException += new UdpEchoServer.SocketExceptionDelegate(echoServer_OnSocketException);
-            
-            Console.WriteLine(string.Format(Messages.UDPServerCaption, serverPort));
+            var echoServer = new UdpEchoServer(_serverPort);
+            echoServer.OnDataReceived += echoServer_OnDataReceived;
+            echoServer.OnSocketException += echoServer_OnSocketException;
+
+            Console.WriteLine(Messages.UDPServerCaption, _serverPort);
 
             echoServer.Start();
             Console.ReadKey(true);
@@ -82,10 +83,9 @@ namespace EchoToolCMD.Modes
         private void echoServer_OnSocketException(SocketException socketException)
         {
             Console.Write(Messages.ServerError + ": ");
-            if (socketException.SocketErrorCode == SocketError.AddressAlreadyInUse)
-                Console.WriteLine(Messages.AddressAlreadyInUse);
-            else
-                Console.WriteLine(socketException.Message);
+            Console.WriteLine(socketException.SocketErrorCode == SocketError.AddressAlreadyInUse
+                ? Messages.AddressAlreadyInUse
+                : socketException.Message);
         }
 
         /// <summary>
@@ -93,10 +93,10 @@ namespace EchoToolCMD.Modes
         /// </summary>
         /// <param name="clientIpEndPoint">Client IP end point</param>
         /// <param name="receivedData">Data from client</param>
-        private void echoServer_OnDataReceived(System.Net.IPEndPoint clientIpEndPoint, byte[] receivedData)
+        private void echoServer_OnDataReceived(IPEndPoint clientIpEndPoint, byte[] receivedData)
         {
-            string dataString = Encoding.ASCII.GetString(receivedData);
-            Console.WriteLine(string.Format(Messages.UDPServerDataReceived, DateTime.Now.ToLongTimeString(), clientIpEndPoint.ToString(), dataString));            
+            var dataString = Encoding.ASCII.GetString(receivedData);
+            Console.WriteLine(Messages.UDPServerDataReceived, DateTime.Now.ToLongTimeString(), clientIpEndPoint, dataString);
         }
     }
 }

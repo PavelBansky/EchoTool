@@ -9,11 +9,10 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace EchoToolCMD
+using System.Linq;
+
+namespace EchoTool
 {
     /// <summary>
     /// Usefull static methods
@@ -27,16 +26,7 @@ namespace EchoToolCMD
         /// <returns>True if string represents number</returns>
         public static bool IsNumber(string stringToTest)
         {
-            bool digit = !string.IsNullOrEmpty(stringToTest);
-            foreach (char c in stringToTest)
-            {
-                if (!Char.IsDigit(c))
-                {
-                    digit = false;
-                    break;
-                }
-            }
-            return digit;
+            return !string.IsNullOrWhiteSpace(stringToTest) && stringToTest.All(char.IsDigit);
         }
 
         /// <summary>
@@ -61,14 +51,7 @@ namespace EchoToolCMD
             {
                 return false;
             }
-            for (int i = 0; i < byteArray1.Length; i++)
-            {
-                if (byteArray1[i] != byteArray2[i])
-                {
-                    return false;
-                }
-            }
-            return true;
+            return !byteArray1.Where((t, i) => t != byteArray2[i]).Any();
         }
     }
 }

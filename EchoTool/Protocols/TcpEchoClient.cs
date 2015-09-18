@@ -9,15 +9,15 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
+
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using System.Text;
-using System.IO;
-using EchoToolCMD;
+using System.Threading;
 
-namespace EchoToolCMD.Protocols
+namespace EchoTool.Protocols
 {
     /// <summary>
     /// Implements TCP Echo Client
@@ -25,27 +25,27 @@ namespace EchoToolCMD.Protocols
     public class TcpEchoClient : IDisposable
     {
         #region Fields
-        Thread mainThread = null;
-        bool clientRunning = false;
-        TcpClient tcpClient;
+        Thread _mainThread;
+        bool _clientRunning;
+        TcpClient _tcpClient;
         #endregion
 
         #region Constructors
         public TcpEchoClient()
         {
-            this.RemotePort = 7;
-            this.LocalPort = 0;
-            this.ResponseTimeout = 5;
-            this.RepeatCount = 5;
-            this.EchoPattern = Encoding.ASCII.GetBytes(string.Format("TCP echo from {0}", Dns.GetHostName()));
+            RemotePort = 7;
+            LocalPort = 0;
+            ResponseTimeout = 5;
+            RepeatCount = 5;
+            EchoPattern = Encoding.ASCII.GetBytes($"TCP echo from {Dns.GetHostName()}");
         }
 
         public TcpEchoClient(string hostName, int remotePort, int localPort)
             : this()
         {
-            this.HostName = hostName;
-            this.RemotePort = remotePort;
-            this.LocalPort = localPort;
+            HostName = hostName;
+            RemotePort = remotePort;
+            LocalPort = localPort;
         }
 
         public TcpEchoClient(string hostName, int remotePort)
@@ -60,11 +60,11 @@ namespace EchoToolCMD.Protocols
         /// </summary>
         public void Start()
         {
-            if (mainThread == null)
+            if (_mainThread == null)
             {
-                mainThread = new Thread(new ThreadStart(ClientThread));
-                clientRunning = true;
-                mainThread.Start();
+                _mainThread = new Thread(ClientThread);
+                _clientRunning = true;
+                _mainThread.Start();
             }
             else
                 throw new Exception("Echo client thread is already running.");
@@ -86,45 +86,46 @@ namespace EchoToolCMD.Protocols
         private void ClientThread()
         {
             IPEndPoint serverEndPoint;
-            byte[] receiveBuffer = new byte[4096];
-            int loopCount = (RepeatCount == 0) ? 1 : RepeatCount - 1;
+            var receiveBuffer = new byte[4096];
+            var loopCount = (RepeatCount == 0) ? 1 : RepeatCount - 1;
 
             // Resolve server IP end point
-            clientRunning = GetHostnameEndPoint(out serverEndPoint);
+            _clientRunning = GetHostnameEndPoint(out serverEndPoint);
 
-            if (clientRunning)
+            if (_clientRunning)
             {
                 try
                 {
                     // Do we have local port assigned?
-                    tcpClient = (LocalPort > 0) ? new TcpClient(new IPEndPoint(IPAddress.Any, LocalPort)) : new TcpClient();
-                    tcpClient.Connect(serverEndPoint);
+                    _tcpClient = (LocalPort > 0) ? new TcpClient(new IPEndPoint(IPAddress.Any, LocalPort)) : new TcpClient();
+                    _tcpClient.Connect(serverEndPoint);
 
-                    if (OnConnect != null)
-                        OnConnect(tcpClient.Client.RemoteEndPoint);
+                    OnConnect?.Invoke(_tcpClient.Client.RemoteEndPoint);
 
-                    NetworkStream networkStream = new NetworkStream(tcpClient.Client);
-                    networkStream.ReadTimeout = ResponseTimeout * 1000;
-                    networkStream.WriteTimeout = ResponseTimeout * 1000;
+                    var networkStream = new NetworkStream(_tcpClient.Client)
+                    {
+                        ReadTimeout = ResponseTimeout * 1000,
+                        WriteTimeout = ResponseTimeout * 1000
+                    };
 
                     #region Main Loop
-                    while (clientRunning && loopCount >= 0)
+                    while (_clientRunning && loopCount >= 0)
                     {
                         // Send data
                         networkStream.Write(EchoPattern, 0, EchoPattern.Length);
 
                         // Get the start time
-                        DateTime echoStart = DateTime.Now;
+                        var echoStart = DateTime.Now;
 
                         // Read the data
-                        int bytesRead = networkStream.Read(receiveBuffer, 0, receiveBuffer.Length);
-                        byte[] receivedData = new byte[bytesRead];
+                        var bytesRead = networkStream.Read(receiveBuffer, 0, receiveBuffer.Length);
+                        var receivedData = new byte[bytesRead];
                         Array.Copy(receiveBuffer, receivedData, bytesRead);
 
                         // Raise event if registered
                         if (OnEchoResponse != null)
                         {
-                            TimeSpan echoTime = DateTime.Now - echoStart;
+                            var echoTime = DateTime.Now - echoStart;
                             OnEchoResponse(serverEndPoint, echoTime, Utils.CompareByteArrays(EchoPattern, receivedData));
                         }
 
@@ -137,29 +138,27 @@ namespace EchoToolCMD.Protocols
                     #endregion
 
                     networkStream.Close();
-                    networkStream = null;
                 }
                 catch (SocketException socketException)
                 {
                     // Raise event if registered
-                    if (OnSocketException != null)
-                        OnSocketException(socketException);
+                    OnSocketException?.Invoke(socketException);
                 }
                 catch (IOException ioException)
                 {
                     // Raise event if the inner exception is SocketException
-                    if (ioException.InnerException.GetType() == typeof(SocketException) && OnSocketException != null)
-                        OnSocketException((SocketException)ioException.InnerException);
+                    if (ioException.InnerException.GetType() == typeof(SocketException))
+                        OnSocketException?.Invoke((SocketException)ioException.InnerException);
                 }
                 finally
                 {
-                    tcpClient.Close();
-                    tcpClient = null;
+                    _tcpClient.Close();
+                    _tcpClient = null;
                 }
             }
 
             // End up thread legaly
-            clientRunning = false;
+            _clientRunning = false;
             EndClientThread();
         }
 
@@ -168,20 +167,19 @@ namespace EchoToolCMD.Protocols
         /// </summary>
         private void EndClientThread()
         {
-            bool abort = false;
+            var abort = false;
 
-            if (mainThread != null && clientRunning)
+            if (_mainThread != null && _clientRunning)
             {
                 abort = true;
-                clientRunning = false;
-                mainThread.Abort();
+                _clientRunning = false;
+                _mainThread.Abort();
             }
 
-            mainThread = null;
+            _mainThread = null;
 
             // Raise event if registered
-            if (OnFinish != null)
-                OnFinish(abort);
+            OnFinish?.Invoke(abort);
         }
 
         /// <summary>
@@ -192,32 +190,30 @@ namespace EchoToolCMD.Protocols
         private bool GetHostnameEndPoint(out IPEndPoint serverEndPoint)
         {
             serverEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            bool resolveSuccess = false;
+            bool resolveSuccess;
 
             try
             {
                 // Find suitable IP address
-                IPAddress[] addressList = Dns.GetHostAddresses(HostName);
+                var addressList = Dns.GetHostAddresses(HostName);
 
-                foreach (IPAddress ipAddress in addressList)
+                foreach (var ipAddress in addressList)
                     if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
                     {
                         serverEndPoint.Address = ipAddress;
                         break;
                     }
-                
+
                 serverEndPoint.Port = RemotePort;
                 resolveSuccess = true;
 
                 // Raise event if registered
-                if (OnHostnameResolved != null)
-                    OnHostnameResolved(serverEndPoint);
+                OnHostnameResolved?.Invoke(serverEndPoint);
             }
             catch (SocketException socketException)
             {
                 // Raise event if registered
-                if (OnSocketException != null)
-                    OnSocketException(socketException);
+                OnSocketException?.Invoke(socketException);
 
                 resolveSuccess = false;
             }
@@ -229,8 +225,8 @@ namespace EchoToolCMD.Protocols
         #region Events & Delegates
         public delegate void SocketExceptionDelegate(SocketException socketException);
         public delegate void OnConnectDelegate(EndPoint serverEndPoint);
-        public delegate void EchoResponseDelegate(IPEndPoint responseIPEndPoint, TimeSpan echoTime, bool dataComplete);
-        public delegate void HostnameResolvedDelegate(IPEndPoint hostnameIPEndPoint);
+        public delegate void EchoResponseDelegate(IPEndPoint responseIpEndPoint, TimeSpan echoTime, bool dataComplete);
+        public delegate void HostnameResolvedDelegate(IPEndPoint hostnameIpEndPoint);
         public delegate void FinishDelegate(bool abort);
 
         /// <summary>
@@ -293,8 +289,7 @@ namespace EchoToolCMD.Protocols
 
         public void Dispose()
         {
-            if (tcpClient != null)
-                tcpClient.Close();
+            _tcpClient?.Close();
 
             Stop();
         }

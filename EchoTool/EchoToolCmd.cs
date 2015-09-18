@@ -15,20 +15,14 @@
  *  Website:        http://mitos-kalandiel.me
  * 
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
-using System.Net.Sockets;
-using EchoToolCMD.Modes;
 
-namespace EchoToolCMD
+namespace EchoTool
 {
     class Program
     {        
         static void Main(string[] args)
         {
-            EchoToolWorker echoWorker = new EchoToolWorker(args);
+            var echoWorker = new EchoToolWorker(args);
             echoWorker.Run();
         }
     }

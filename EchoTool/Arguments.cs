@@ -9,12 +9,11 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
-using System;
+
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
-namespace EchoToolCMD
+namespace EchoTool
 {
     /// <summary>
     /// Implements functionality to parse switches in command line arguments
@@ -22,8 +21,9 @@ namespace EchoToolCMD
     public class Arguments
     {
         #region Fields
-        Dictionary<string, string> argumentsDictionary = new Dictionary<string, string>();
-        string firstArgument = string.Empty;
+
+        readonly Dictionary<string, string> _argumentsDictionary = new Dictionary<string, string>();
+
         #endregion
 
         /// <summary>
@@ -34,23 +34,21 @@ namespace EchoToolCMD
         {
             if (argumentsArray != null && argumentsArray.Length > 0)
             {
-                firstArgument = argumentsArray[0];
+                FirstArgument = argumentsArray[0];
 
                 // Join the arguments to one string
-                string argumentLine = string.Join(" ", argumentsArray);
+                var argumentLine = string.Join(" ", argumentsArray);
 
                 // Split it again by matches
-                Regex argsRegex = new Regex(@"\/\w*[^/]*");
-                MatchCollection argsMatches = argsRegex.Matches(argumentLine);
+                var argsRegex = new Regex(@"\/\w*[^/]*");
+                var argsMatches = argsRegex.Matches(argumentLine);
                 foreach (Match argument in argsMatches)
                 {
-                    string argsString = argument.Value.Trim();
-
-                    string argSwitch = Regex.Match(argument.Value, @"/\w*").Value.Trim();
-                    string argData = Regex.Match(argument.Value, @"\s([\w|\s]*)$").Value.Trim();
+                    var argSwitch = Regex.Match(argument.Value, @"/\w*").Value.Trim();
+                    var argData = Regex.Match(argument.Value, @"\s([\w|\s]*)$").Value.Trim();
                     
                     // Save it to the args dict.
-                    argumentsDictionary.Add(argSwitch, (argData == null) ? string.Empty : argData);
+                    _argumentsDictionary.Add(argSwitch, argData);
                 }
             }
         }
@@ -62,7 +60,7 @@ namespace EchoToolCMD
         /// <returns>True if switch exists</returns>
         public bool Exists(string argSwitch)
         {             
-            return argumentsDictionary.ContainsKey(argSwitch);
+            return _argumentsDictionary.ContainsKey(argSwitch);
         }
 
         /// <summary>
@@ -72,7 +70,7 @@ namespace EchoToolCMD
         /// <returns>Switchs value</returns>
         public string Get(string argSwitch)
         {            
-            return argumentsDictionary[argSwitch];
+            return _argumentsDictionary[argSwitch];
         }
 
         /// <summary>
@@ -86,11 +84,10 @@ namespace EchoToolCMD
         {
             if (Exists(argSwitch))
             {
-                string argValue = Get(argSwitch);
+                var argValue = Get(argSwitch);
                 return (string.IsNullOrEmpty(argValue)) ? defaultValue : argValue;
             }
-            else
-                return defaultValue;
+            return defaultValue;
         }
 
         /// <summary>
@@ -103,17 +100,13 @@ namespace EchoToolCMD
         public string GetNotExists(string argSwitch, string defaultValue)
         {
             if (Exists(argSwitch))                            
-                return Get(argSwitch);            
-            else
-                return defaultValue;
+                return Get(argSwitch);
+            return defaultValue;
         }
 
         /// <summary>
         /// Contains first rgument on the line
         /// </summary>
-        public string FirstArgument
-        {
-            get { return firstArgument; }
-        }
+        public string FirstArgument { get; } = string.Empty;
     }
 }

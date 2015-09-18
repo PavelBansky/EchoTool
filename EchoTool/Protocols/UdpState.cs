@@ -9,18 +9,18 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
-using System;
+
 using System.Net;
 using System.Net.Sockets;
 
-namespace EchoToolCMD.Protocols
+namespace EchoTool.Protocols
 {
     /// <summary>
     /// UDP async state class
     /// </summary>
     public class UdpState
     {
-        public IPEndPoint IPEndPoint;
+        public IPEndPoint IpEndPoint;
         public UdpClient UdpClient;
     }
 }
