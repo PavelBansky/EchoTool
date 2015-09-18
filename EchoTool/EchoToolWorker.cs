@@ -20,7 +20,7 @@ namespace EchoTool
     /// </summary>
     public class EchoToolWorker
     {
-        readonly Arguments _arguments;
+        Arguments _arguments;
 
         /// <summary>
         /// Creates new echo tool instance
@@ -38,10 +38,11 @@ namespace EchoTool
         {
             Console.WriteLine();
 
-            if (!DoWork(_arguments))
+            while (!DoWork(_arguments))
             {
                 ShowHelp();
-                Console.ReadKey();
+                var c = Console.ReadLine();
+                _arguments = new Arguments(c?.Split(' '));
             }
         }
 
@@ -102,14 +103,14 @@ namespace EchoTool
         {
             Console.WriteLine("EchoTool for Dicom testing. Please use from commandline with the following Parameters!");
             Console.WriteLine("Usage: echotool [target_name] [/p protocol] [/s listen_port] [/r remote_port]\n[/l local_port] [/n count] [/t timeout] [/d echo_pattern] [/s [listen_port]]\n");
-            Console.WriteLine("Options:");            
+            Console.WriteLine("Options:");
             Console.WriteLine("\t/p protocol\t tcp or udp");
             Console.WriteLine("\t/s [port]\t Server mode on specified port");
             Console.WriteLine("\t/r port\t\t Remote port on the echo server");
             Console.WriteLine("\t/l port\t\t Local port for client");
             Console.WriteLine("\t/n count\t Nummber of echo requests to send. 0 = infinite");
             Console.WriteLine("\t/t timeout\t Timeout in seconds");
-            Console.WriteLine("\t/d pattern\t Pattern to be sent for echo");            
+            Console.WriteLine("\t/d pattern\t Pattern to be sent for echo");
         }
     }
 }

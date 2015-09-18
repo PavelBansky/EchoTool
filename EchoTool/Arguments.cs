@@ -32,24 +32,23 @@ namespace EchoTool
         /// <param name="argumentsArray"></param>
         public Arguments(string[] argumentsArray)
         {
-            if (argumentsArray != null && argumentsArray.Length > 0)
+            if (argumentsArray == null || argumentsArray.Length <= 0) return;
+
+            FirstArgument = argumentsArray[0];
+
+            // Join the arguments to one string
+            var argumentLine = string.Join(" ", argumentsArray);
+
+            // Split it again by matches
+            var argsRegex = new Regex(@"\/\w*[^/]*");
+            var argsMatches = argsRegex.Matches(argumentLine);
+            foreach (Match argument in argsMatches)
             {
-                FirstArgument = argumentsArray[0];
+                var argSwitch = Regex.Match(argument.Value, @"/\w*").Value.Trim();
+                var argData = Regex.Match(argument.Value, @"\s([\w|\s]*)$").Value.Trim();
 
-                // Join the arguments to one string
-                var argumentLine = string.Join(" ", argumentsArray);
-
-                // Split it again by matches
-                var argsRegex = new Regex(@"\/\w*[^/]*");
-                var argsMatches = argsRegex.Matches(argumentLine);
-                foreach (Match argument in argsMatches)
-                {
-                    var argSwitch = Regex.Match(argument.Value, @"/\w*").Value.Trim();
-                    var argData = Regex.Match(argument.Value, @"\s([\w|\s]*)$").Value.Trim();
-                    
-                    // Save it to the args dict.
-                    _argumentsDictionary.Add(argSwitch, argData);
-                }
+                // Save it to the args dict.
+                _argumentsDictionary.Add(argSwitch, argData);
             }
         }
 
@@ -59,7 +58,7 @@ namespace EchoTool
         /// <param name="argSwitch">Switch</param>
         /// <returns>True if switch exists</returns>
         public bool Exists(string argSwitch)
-        {             
+        {
             return _argumentsDictionary.ContainsKey(argSwitch);
         }
 
@@ -69,7 +68,7 @@ namespace EchoTool
         /// <param name="argSwitch">Switch</param>
         /// <returns>Switchs value</returns>
         public string Get(string argSwitch)
-        {            
+        {
             return _argumentsDictionary[argSwitch];
         }
 
@@ -82,12 +81,9 @@ namespace EchoTool
         /// <returns>Switchs value</returns>
         public string Get(string argSwitch, string defaultValue)
         {
-            if (Exists(argSwitch))
-            {
-                var argValue = Get(argSwitch);
-                return (string.IsNullOrEmpty(argValue)) ? defaultValue : argValue;
-            }
-            return defaultValue;
+            if (!Exists(argSwitch)) return defaultValue;
+            var argValue = Get(argSwitch);
+            return (string.IsNullOrEmpty(argValue)) ? defaultValue : argValue;
         }
 
         /// <summary>
@@ -99,9 +95,7 @@ namespace EchoTool
         /// <returns>Switch value</returns>
         public string GetNotExists(string argSwitch, string defaultValue)
         {
-            if (Exists(argSwitch))                            
-                return Get(argSwitch);
-            return defaultValue;
+            return Exists(argSwitch) ? Get(argSwitch) : defaultValue;
         }
 
         /// <summary>
