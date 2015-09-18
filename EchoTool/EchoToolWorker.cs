@@ -41,6 +41,8 @@ namespace EchoTool
             while (!DoWork(_arguments))
             {
                 ShowHelp();
+                Console.WriteLine(@"Type correct arguments below...");
+                Console.Write(@"echotool ");
                 var c = Console.ReadLine();
                 _arguments = new Arguments(c?.Split(' '));
             }
@@ -51,7 +53,7 @@ namespace EchoTool
         /// </summary>
         /// <param name="arguments">Commandline arguments</param>
         /// <returns>False if show can not start</returns>
-        private bool DoWork(Arguments arguments)
+        private static bool DoWork(Arguments arguments)
         {
             IEchoMode mainMode;
 
@@ -99,18 +101,18 @@ namespace EchoTool
         /// <summary>
         /// Writes help screen
         /// </summary>
-        private void ShowHelp()
+        private static void ShowHelp()
         {
-            Console.WriteLine("EchoTool for Dicom testing. Please use from commandline with the following Parameters!");
-            Console.WriteLine("Usage: echotool [target_name] [/p protocol] [/s listen_port] [/r remote_port]\n[/l local_port] [/n count] [/t timeout] [/d echo_pattern] [/s [listen_port]]\n");
-            Console.WriteLine("Options:");
-            Console.WriteLine("\t/p protocol\t tcp or udp");
-            Console.WriteLine("\t/s [port]\t Server mode on specified port");
-            Console.WriteLine("\t/r port\t\t Remote port on the echo server");
-            Console.WriteLine("\t/l port\t\t Local port for client");
-            Console.WriteLine("\t/n count\t Nummber of echo requests to send. 0 = infinite");
-            Console.WriteLine("\t/t timeout\t Timeout in seconds");
-            Console.WriteLine("\t/d pattern\t Pattern to be sent for echo");
+            Console.WriteLine(@"EchoTool for Dicom testing. Please use from commandline with the following Parameters!");
+            Console.WriteLine(@"Usage: echotool [target_name] [/p protocol] [/s listen_port] [/r remote_port] [/l local_port] [/n count] [/t timeout] [/d echo_pattern] [/s [listen_port]]");
+            Console.WriteLine(@"Options:");
+            Console.WriteLine(@"	/p protocol	 tcp or udp");
+            Console.WriteLine(@"	/s [port]	 Server mode on specified port");
+            Console.WriteLine(@"	/r port		 Remote port on the echo server");
+            Console.WriteLine(@"	/l port		 Local port for client");
+            Console.WriteLine(@"	/n count	 Nummber of echo requests to send. 0 = infinite");
+            Console.WriteLine(@"	/t timeout	 Timeout in seconds");
+            Console.WriteLine(@"	/d pattern	 Pattern to be sent for echo");
         }
     }
 }
