@@ -14,10 +14,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Sockets;
 
-using EchoToolCMD.Protocols;
-using EchoToolCMD.Resources;
+using EchoTool.Protocols;
+using EchoTool.Resources;
 
-namespace EchoToolCMD.Modes
+namespace EchoTool.Modes
 {
     /// <summary>
     /// Implements functionality for UDP server UI

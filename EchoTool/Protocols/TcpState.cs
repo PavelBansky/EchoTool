@@ -12,7 +12,7 @@
 using System;
 using System.Net.Sockets;
 
-namespace EchoToolCMD.Protocols
+namespace EchoTool.Protocols
 {
     /// <summary>
     /// TCP async state class
