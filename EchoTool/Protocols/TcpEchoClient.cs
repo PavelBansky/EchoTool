@@ -15,9 +15,9 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Text;
 using System.IO;
-using EchoToolCMD;
+using EchoTool;
 
-namespace EchoToolCMD.Protocols
+namespace EchoTool.Protocols
 {
     /// <summary>
     /// Implements TCP Echo Client

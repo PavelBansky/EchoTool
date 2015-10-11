@@ -1,11 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoToolCMD", "EchoTool\EchoToolCMD.csproj", "{1D3A65A8-18CC-4620-84C1-E8D606D090E8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoToolGui", "EchoToolGui\EchoToolGui.csproj", "{EAF0BA19-AFB8-4E85-A1FA-AEFC81A8E30D}"
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoTool", "EchoTool\EchoTool.csproj", "{1D3A65A8-18CC-4620-84C1-E8D606D090E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +13,6 @@ Global
 		{1D3A65A8-18CC-4620-84C1-E8D606D090E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D3A65A8-18CC-4620-84C1-E8D606D090E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D3A65A8-18CC-4620-84C1-E8D606D090E8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EAF0BA19-AFB8-4E85-A1FA-AEFC81A8E30D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EAF0BA19-AFB8-4E85-A1FA-AEFC81A8E30D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EAF0BA19-AFB8-4E85-A1FA-AEFC81A8E30D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EAF0BA19-AFB8-4E85-A1FA-AEFC81A8E30D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

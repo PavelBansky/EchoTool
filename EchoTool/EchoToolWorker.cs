@@ -12,12 +12,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using EchoToolCMD.Modes;
+using EchoTool.Modes;
 
-namespace EchoToolCMD
+namespace EchoTool
 {
     /// <summary>
-    /// Implements main EchoToolCMD functionality
+    /// Implements main EchoTool functionality
     /// </summary>
     public class EchoToolWorker
     {
@@ -40,10 +40,7 @@ namespace EchoToolCMD
             Console.WriteLine();
 
             if (!DoWork(arguments))
-            {
                 ShowHelp();
-                Console.ReadKey();
-            }
         }
 
         /// <summary>
@@ -100,8 +97,7 @@ namespace EchoToolCMD
         /// Writes help screen
         /// </summary>
         private void ShowHelp()
-        {
-            Console.WriteLine("EchoTool for Dicom testing. Please use from commandline with the following Parameters!");
+        {            
             Console.WriteLine("Usage: echotool [target_name] [/p protocol] [/s listen_port] [/r remote_port]\n[/l local_port] [/n count] [/t timeout] [/d echo_pattern] [/s [listen_port]]\n");
             Console.WriteLine("Options:");            
             Console.WriteLine("\t/p protocol\t tcp or udp");
