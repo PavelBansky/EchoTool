@@ -33,10 +33,10 @@ Use your own echo pattern with /d switch
                 
 
 Echo server mode
-![server mode image](http://bansky.net/img/echo_server.png)
+![server mode image](http://bansky.net/echotool/echo_server.png)
 
 Echo client mode
-![client mode image](http://bansky.net/img/echo_client.png)
+![client mode image](http://bansky.net/echotool/echo_client.png)
 
 ## Download  ##
 Stand alone executable
