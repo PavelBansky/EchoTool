@@ -9,11 +9,12 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
+
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using System.Text;
+using System.Threading;
 
 namespace EchoTool.Protocols
 {
@@ -23,26 +24,26 @@ namespace EchoTool.Protocols
     public class UdpEchoClient : IDisposable
     {
         #region Fields
-        Thread mainThread = null;
-        bool clientRunning = false;
-        UdpClient udpClient;
+        Thread _mainThread;
+        bool _clientRunning;
+        UdpClient _udpClient;
         #endregion
 
         #region Constructors
         public UdpEchoClient()
         {
-            this.RemotePort = 7;
-            this.LocalPort = 0;
-            this.ResponseTimeout = 5;
-            this.RepeatCount = 5;
-            this.EchoPattern = Encoding.ASCII.GetBytes(string.Format("UDP echo from {0}", Dns.GetHostName()));            
+            RemotePort = 7;
+            LocalPort = 0;
+            ResponseTimeout = 5;
+            RepeatCount = 5;
+            EchoPattern = Encoding.ASCII.GetBytes($"UDP echo from {Dns.GetHostName()}");            
         }
 
         public UdpEchoClient(string hostName, int remotePort, int localPort)  : this()
         {
-            this.HostName = hostName;
-            this.RemotePort = remotePort;
-            this.LocalPort = localPort;
+            HostName = hostName;
+            RemotePort = remotePort;
+            LocalPort = localPort;
         }
 
         public UdpEchoClient(string hostName, int remotePort)
@@ -57,11 +58,11 @@ namespace EchoTool.Protocols
         /// </summary>
         public void Start()
         {
-            if (mainThread == null)
+            if (_mainThread == null)
             {
-                mainThread = new Thread(new ThreadStart(ClientThread));
-                clientRunning = true;
-                mainThread.Start();
+                _mainThread = new Thread(ClientThread);
+                _clientRunning = true;
+                _mainThread.Start();
             }
             else
                 throw new Exception("Echo client thread is already running.");
@@ -84,44 +85,42 @@ namespace EchoTool.Protocols
         {                        
             IPEndPoint responseEndPoint = null;
             IPEndPoint serverEndPoint;
-            byte[] responseData = null;
-            int loopCount = (RepeatCount == 0) ? 1 : RepeatCount - 1;
+            var loopCount = (RepeatCount == 0) ? 1 : RepeatCount - 1;
 
             // Resolve server IP end point
-            clientRunning = GetHostnameEndPoint(out serverEndPoint);
+            _clientRunning = GetHostnameEndPoint(out serverEndPoint);
 
             #region Main loop
-            while (clientRunning && loopCount >= 0)
+            while (_clientRunning && loopCount >= 0)
             {
                 try
                 { 
                     // Do we have local port assigned?
-                    udpClient = (LocalPort > 0) ? new UdpClient(LocalPort) : new UdpClient();
+                    _udpClient = (LocalPort > 0) ? new UdpClient(LocalPort) : new UdpClient();
 
                     // Send data
-                    udpClient.Send(EchoPattern, EchoPattern.Length, serverEndPoint);
+                    _udpClient.Send(EchoPattern, EchoPattern.Length, serverEndPoint);
 
                     // Get the start time
-                    DateTime echoStart = DateTime.Now;
-                    udpClient.Client.ReceiveTimeout = ResponseTimeout * 1000;
-                    responseData = udpClient.Receive(ref responseEndPoint);
+                    var echoStart = DateTime.Now;
+                    _udpClient.Client.ReceiveTimeout = ResponseTimeout * 1000;
+                    var responseData = _udpClient.Receive(ref responseEndPoint);
 
                     // Raise event if registered
                     if (OnEchoResponse != null)
                     {
-                        TimeSpan echoTime = DateTime.Now - echoStart;
+                        var echoTime = DateTime.Now - echoStart;
                         OnEchoResponse(responseEndPoint, echoTime, Utils.CompareByteArrays(EchoPattern, responseData));
                     }
                 }
                 catch (SocketException socketException)
                 {
                     // Raise event if registered
-                    if (OnSocketException != null)
-                        OnSocketException(socketException);
+                    OnSocketException?.Invoke(socketException);
                 }
                 finally
                 {
-                    udpClient.Close();
+                    _udpClient.Close();
                 }
 
                 // Infinite test
@@ -133,7 +132,7 @@ namespace EchoTool.Protocols
             #endregion
 
             // End up thread legaly
-            clientRunning = false;
+            _clientRunning = false;
             EndClientThread();
         }
 
@@ -142,20 +141,19 @@ namespace EchoTool.Protocols
         /// </summary>
         private void EndClientThread()
         {
-            bool abort = false;
+            var abort = false;
 
-            if (mainThread != null && clientRunning)
+            if (_mainThread != null && _clientRunning)
             {
                 abort = true;
-                clientRunning = false;
-                mainThread.Abort();                
+                _clientRunning = false;
+                _mainThread.Abort();                
             }
             
-            mainThread = null;
+            _mainThread = null;
 
             // Raise event if registered
-            if (OnFinish != null)
-                OnFinish(abort);
+            OnFinish?.Invoke(abort);
         }
 
         /// <summary>
@@ -166,13 +164,13 @@ namespace EchoTool.Protocols
         private bool GetHostnameEndPoint(out IPEndPoint serverEndPoint)
         {
             serverEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            bool resolveSuccess = false;
+            bool resolveSuccess;
 
             try
             {
                 // Find suitable IP address
-                IPAddress[] addressList = Dns.GetHostAddresses(HostName);               
-                foreach(IPAddress ipAddress in addressList)
+                var addressList = Dns.GetHostAddresses(HostName);               
+                foreach(var ipAddress in addressList)
                     if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
                     {
                         serverEndPoint.Address = ipAddress;
@@ -183,14 +181,12 @@ namespace EchoTool.Protocols
                 resolveSuccess = true;
 
                 // Raise event if registered
-                if (OnHostnameResolved != null)
-                    OnHostnameResolved(serverEndPoint);
+                OnHostnameResolved?.Invoke(serverEndPoint);
             }
             catch (SocketException socketException)
             {
                 // Raise event if registered
-                if (OnSocketException != null)
-                    OnSocketException(socketException);
+                OnSocketException?.Invoke(socketException);
 
                 resolveSuccess = false;
             }
@@ -201,8 +197,8 @@ namespace EchoTool.Protocols
 
         #region Events & Delegates
         public delegate void SocketExceptionDelegate(SocketException socketException);
-        public delegate void EchoResponseDelegate(IPEndPoint responseIPEndPoint, TimeSpan echoTime, bool dataComplete);
-        public delegate void HostnameResolvedDelegate(IPEndPoint hostnameIPEndPoint);
+        public delegate void EchoResponseDelegate(IPEndPoint responseIpEndPoint, TimeSpan echoTime, bool dataComplete);
+        public delegate void HostnameResolvedDelegate(IPEndPoint hostnameIpEndPoint);
         public delegate void FinishDelegate(bool abort);
 
         /// <summary>

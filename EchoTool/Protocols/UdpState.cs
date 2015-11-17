@@ -9,7 +9,7 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
-using System;
+
 using System.Net;
 using System.Net.Sockets;
 
@@ -20,7 +20,7 @@ namespace EchoTool.Protocols
     /// </summary>
     public class UdpState
     {
-        public IPEndPoint IPEndPoint;
+        public IPEndPoint IpEndPoint;
         public UdpClient UdpClient;
     }
 }

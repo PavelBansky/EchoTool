@@ -9,12 +9,12 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
+
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Text;
-using System.IO;
 
 namespace EchoTool.Protocols
 {
@@ -24,10 +24,10 @@ namespace EchoTool.Protocols
     public class TcpEchoServer : IDisposable
     {
         #region Field
-        Thread mainThread = null;
-        bool serverRunning = false;
-        TcpListener tcpListener;
-        TcpClient tcpClient;
+        Thread _mainThread;
+        bool _serverRunning;
+        TcpListener _tcpListener;
+        TcpClient _tcpClient;
         #endregion
 
         #region Constructor
@@ -56,12 +56,12 @@ namespace EchoTool.Protocols
         /// </summary>
         public void Start()
         {
-            if (mainThread == null)
+            if (_mainThread == null)
             {
-                tcpListener = new TcpListener(IPAddress.Any, ListenPort);              
-                mainThread = new Thread(new ThreadStart(ServerThread));
-                serverRunning = true;
-                mainThread.Start();
+                _tcpListener = new TcpListener(IPAddress.Any, ListenPort);              
+                _mainThread = new Thread(ServerThread);
+                _serverRunning = true;
+                _mainThread.Start();
             }
             else
                 throw new Exception("Echo server thread is already running.");
@@ -72,13 +72,13 @@ namespace EchoTool.Protocols
         /// </summary>
         public void Stop()
         {
-            if (serverRunning)
+            if (_serverRunning)
             {
-                serverRunning = false;
-                tcpListener.Stop();
-                mainThread.Abort();
-                mainThread = null;
-                tcpClient = null;
+                _serverRunning = false;
+                _tcpListener.Stop();
+                _mainThread.Abort();
+                _mainThread = null;
+                _tcpClient = null;
             }
         }
         #endregion
@@ -92,42 +92,40 @@ namespace EchoTool.Protocols
             try
             {
                 // Start listening
-                tcpListener.Start();
+                _tcpListener.Start();
 
                 // Main loop
-                while (serverRunning)
+                while (_serverRunning)
                 {                    
-                    tcpClient = tcpListener.AcceptTcpClient();
+                    _tcpClient = _tcpListener.AcceptTcpClient();
 
                     // Raise event when client is connected
-                    if (OnConnect != null)
-                        OnConnect(tcpClient.Client.RemoteEndPoint);
+                    OnConnect?.Invoke(_tcpClient.Client.RemoteEndPoint);
 
                     // Start exchanging the data when client is connected
-                    if (tcpClient != null && tcpClient.Client.Connected)
+                    if (_tcpClient == null || !_tcpClient.Client.Connected) continue;
+                    // Init state object
+                    var tcpState = new TcpState
                     {
-                        // Init state object
-                        TcpState tcpState = new TcpState();
-                        tcpState.NetworkStream = new NetworkStream(tcpClient.Client);
-                        tcpState.DataBuffer = new byte[tcpClient.ReceiveBufferSize];
-                        tcpState.TimeoutWatch = DateTime.Now;
+                        NetworkStream = new NetworkStream(_tcpClient.Client),
+                        DataBuffer = new byte[_tcpClient.ReceiveBufferSize],
+                        TimeoutWatch = DateTime.Now
+                    };
 
-                        tcpState.NetworkStream.BeginRead(tcpState.DataBuffer, 0, tcpState.DataBuffer.Length, new AsyncCallback(ReadCallBack), tcpState);
+                    tcpState.NetworkStream.BeginRead(tcpState.DataBuffer, 0, tcpState.DataBuffer.Length, ReadCallBack, tcpState);
 
-                        bool timeOut = false;
-                        while (tcpClient.Client.Connected && serverRunning && !timeOut)
-                        {
-                            TimeSpan timeoutSpan = DateTime.Now - tcpState.TimeoutWatch;
-                            if (timeoutSpan.Seconds >= ConnectionTimeout)
-                                timeOut = true;
-                        }
-                        
-                        // Raise disconnect event
-                        if (OnDisconnect != null)
-                            OnDisconnect(timeOut);
-                        
-                        tcpClient.Close();
+                    var timeOut = false;
+                    while (_tcpClient.Client.Connected && _serverRunning && !timeOut)
+                    {
+                        var timeoutSpan = DateTime.Now - tcpState.TimeoutWatch;
+                        if (timeoutSpan.Seconds >= ConnectionTimeout)
+                            timeOut = true;
                     }
+                        
+                    // Raise disconnect event
+                    OnDisconnect?.Invoke(timeOut);
+
+                    _tcpClient.Close();
                 }
             }
             catch (SocketException socketException)
@@ -149,31 +147,30 @@ namespace EchoTool.Protocols
         /// <param name="ar"></param>
         public void ReadCallBack(IAsyncResult ar)
         {
-            TcpState tcpState = (TcpState)ar.AsyncState;
-            NetworkStream networkStream = tcpState.NetworkStream;
+            var tcpState = (TcpState)ar.AsyncState;
+            var networkStream = tcpState.NetworkStream;
 
             try
             {
-                int bytesRead = networkStream.EndRead(ar);
+                var bytesRead = networkStream.EndRead(ar);
                 if (bytesRead > 0)
                 {
                     // Send back received date
-                    byte[] receivedData = new byte[bytesRead];
+                    var receivedData = new byte[bytesRead];
                     Array.Copy(tcpState.DataBuffer, receivedData, bytesRead);                  
                     networkStream.Write(receivedData, 0, receivedData.Length);
 
                     // Raise event
-                    if (OnDataReceived != null)
-                        OnDataReceived(receivedData);
+                    OnDataReceived?.Invoke(receivedData);
 
                     // Reset timeouut watch
                     tcpState.TimeoutWatch = DateTime.Now;
-                    networkStream.BeginRead(tcpState.DataBuffer, 0, tcpState.DataBuffer.Length, new AsyncCallback(ReadCallBack), tcpState);
+                    networkStream.BeginRead(tcpState.DataBuffer, 0, tcpState.DataBuffer.Length, ReadCallBack, tcpState);
                 }
                 else
                 {
                     // We are hooked in CLOSE_WAIT state, so close
-                    tcpClient.Client.Close();
+                    _tcpClient.Client.Close();
                 }
             }
             catch (IOException ioException)
@@ -181,7 +178,7 @@ namespace EchoTool.Protocols
                 // Rethrow every exception that is not socketException                
                 if (ioException.InnerException.GetType() == typeof(SocketException))
                 {
-                    SocketException socketException = (SocketException)ioException.InnerException;
+                    var socketException = (SocketException)ioException.InnerException;
                     // Report every error but ConnectionReset
                     if (socketException.SocketErrorCode != SocketError.ConnectionReset && OnSocketException != null)
                     {
@@ -190,7 +187,7 @@ namespace EchoTool.Protocols
                     }
                 }
                 else if (ioException.InnerException.GetType() != typeof(ObjectDisposedException))
-                    throw ioException;                
+                    throw;                
             }
         }
         #endregion
@@ -235,11 +232,9 @@ namespace EchoTool.Protocols
 
         public void Dispose()
         {
-            if (tcpClient != null)
-                tcpClient.Close();
+            _tcpClient?.Close();
 
-            if (tcpListener != null)
-                tcpListener.Stop();
+            _tcpListener?.Stop();
 
             Stop();
         }

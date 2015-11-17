@@ -9,11 +9,11 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
+
 using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Text;
 
 namespace EchoTool.Protocols
 {
@@ -23,8 +23,8 @@ namespace EchoTool.Protocols
     public class UdpEchoServer : IDisposable
     {
         #region Field
-        Thread mainThread = null;        
-        bool serverRunning = false;        
+        Thread _mainThread;        
+        bool _serverRunning;        
         #endregion
 
         #region Constructor
@@ -51,11 +51,11 @@ namespace EchoTool.Protocols
         /// </summary>
         public void Start()
         {
-            if (mainThread == null)
+            if (_mainThread == null)
             {
-                mainThread = new Thread(new ThreadStart(ServerThread));
-                serverRunning = true;
-                mainThread.Start();
+                _mainThread = new Thread(ServerThread);
+                _serverRunning = true;
+                _mainThread.Start();
             }
             else
                 throw new Exception("Echo server thread is already running.");
@@ -66,12 +66,10 @@ namespace EchoTool.Protocols
         /// </summary>
         public void Stop()
         {
-            if (serverRunning)
-            {
-                serverRunning = false;
-                mainThread.Abort();
-                mainThread = null;
-            }
+            if (!_serverRunning) return;
+            _serverRunning = false;
+            _mainThread.Abort();
+            _mainThread = null;
         }
         #endregion
 
@@ -83,13 +81,12 @@ namespace EchoTool.Protocols
         {
             try
             {
-                UdpState udpState = new UdpState();
-                udpState.IPEndPoint = new IPEndPoint(IPAddress.Any, ListenPort);
-                udpState.UdpClient = new UdpClient(udpState.IPEndPoint);
-                udpState.UdpClient.BeginReceive(new AsyncCallback(ReceiveCallback), udpState);
+                var udpState = new UdpState {IpEndPoint = new IPEndPoint(IPAddress.Any, ListenPort)};
+                udpState.UdpClient = new UdpClient(udpState.IpEndPoint);
+                udpState.UdpClient.BeginReceive(ReceiveCallback, udpState);
 
                 // Main loop
-                while (serverRunning) { }
+                while (_serverRunning) { }
             }
             catch (SocketException socketException)
             {
@@ -107,11 +104,11 @@ namespace EchoTool.Protocols
         /// <param name="ar">Async result</param>
         private void ReceiveCallback(IAsyncResult ar)
         {
-            UdpState udpState = (UdpState)ar.AsyncState;
-            UdpClient udpClient = udpState.UdpClient;
-            IPEndPoint endPoint = udpState.IPEndPoint;
+            var udpState = (UdpState)ar.AsyncState;
+            var udpClient = udpState.UdpClient;
+            var endPoint = udpState.IpEndPoint;
 
-            byte[] data = udpClient.EndReceive(ar, ref endPoint);            
+            var data = udpClient.EndReceive(ar, ref endPoint);            
 
             // Send the data back
             udpClient.Connect(endPoint);
@@ -119,12 +116,11 @@ namespace EchoTool.Protocols
             udpClient.Close();
 
             // Rise the event
-            if (OnDataReceived != null)
-                OnDataReceived(endPoint, data);
+            OnDataReceived?.Invoke(endPoint, data);
 
-            udpState.IPEndPoint = new IPEndPoint(IPAddress.Any, ListenPort);
-            udpState.UdpClient = new UdpClient(udpState.IPEndPoint);
-            udpState.UdpClient.BeginReceive(new AsyncCallback(ReceiveCallback), udpState);
+            udpState.IpEndPoint = new IPEndPoint(IPAddress.Any, ListenPort);
+            udpState.UdpClient = new UdpClient(udpState.IpEndPoint);
+            udpState.UdpClient.BeginReceive(ReceiveCallback, udpState);
         }
         #endregion
 
