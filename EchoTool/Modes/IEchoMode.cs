@@ -9,19 +9,11 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
-
-using System;
-using System.Net.Sockets;
-
-namespace EchoTool.Protocols
+namespace EchoTool.Modes
 {
-    /// <summary>
-    /// TCP async state class
-    /// </summary>
-    public class TcpState
+    public interface IEchoMode
     {
-        public NetworkStream NetworkStream;
-        public byte[] DataBuffer;
-        public DateTime TimeoutWatch;
+        bool ParseArguments();
+        void Run();
     }
 }

@@ -9,9 +9,8 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
+
 using System;
-using System.Collections.Generic;
-using System.Text;
 using EchoTool.Modes;
 
 namespace EchoTool
@@ -21,7 +20,7 @@ namespace EchoTool
     /// </summary>
     public class EchoToolWorker
     {
-        Arguments arguments;
+        readonly Arguments _arguments;
 
         /// <summary>
         /// Creates new echo tool instance
@@ -29,7 +28,7 @@ namespace EchoTool
         /// <param name="args"></param>
         public EchoToolWorker(string[] args)
         {
-            arguments = new Arguments(args);
+            _arguments = new Arguments(args);
         }
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace EchoTool
         {
             Console.WriteLine();
 
-            if (!DoWork(arguments))
+            if (!DoWork(_arguments))
                 ShowHelp();
         }
 
@@ -53,21 +52,26 @@ namespace EchoTool
             IEchoMode mainMode;
 
             // Parse protocol
-            string strProtocol = arguments.Get("/p", string.Empty).ToLower();
-            bool isProtocolUDP = true;
+            var strProtocol = arguments.Get("/p", string.Empty).ToLower();
+            bool isProtocolUdp;
 
-            if (strProtocol == "udp")
-                isProtocolUDP = true;
-            else if (strProtocol == "tcp")
-                isProtocolUDP = false;
-            else
-                return false;
+            switch (strProtocol)
+            {
+                case "udp":
+                    isProtocolUdp = true;
+                    break;
+                case "tcp":
+                    isProtocolUdp = false;
+                    break;
+                default:
+                    return false;
+            }
 
             // Should we run server mode
             if (arguments.Exists("/s"))
             {
                 // UDP server or TCP mode
-                if (isProtocolUDP)
+                if (isProtocolUdp)
                     mainMode = new UdpServerMode(arguments);
                 else
                     mainMode = new TcpServerMode(arguments);
@@ -76,7 +80,7 @@ namespace EchoTool
             else if (!string.IsNullOrEmpty(arguments.FirstArgument) && !arguments.FirstArgument.StartsWith("/"))
             {
                 // UDP client or TCP mode
-                if (isProtocolUDP)
+                if (isProtocolUdp)
                     mainMode = new UdpClientMode(arguments);
                 else
                     mainMode = new TcpClientMode(arguments);

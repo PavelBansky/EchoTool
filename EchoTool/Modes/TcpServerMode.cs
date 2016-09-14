@@ -9,11 +9,11 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
+
 using System;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
-
+using System.Text;
 using EchoTool.Protocols;
 using EchoTool.Resources;
 
@@ -24,13 +24,14 @@ namespace EchoTool.Modes
     /// </summary>
     public class TcpServerMode : IEchoMode
     {
-        const int LISTEN_PORT = 7;
-        const int TIMEOUT = 300;
+        const int ListenPort = 7;
+        const int Timeout = 300;
 
         #region Fields
-        Arguments arguments;
-        int serverPort = LISTEN_PORT;
-        int connTimeout = TIMEOUT;
+
+        readonly Arguments _arguments;
+        int _serverPort = ListenPort;
+        int _connTimeout = Timeout;
         #endregion
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace EchoTool.Modes
         /// <param name="arguments">Arguments to server</param>
         public TcpServerMode(Arguments arguments)
         {
-            this.arguments = arguments;
+            _arguments = arguments;
         }
 
         /// <summary>
@@ -48,20 +49,20 @@ namespace EchoTool.Modes
         /// <returns>Returns true if server is ready</returns>
         public bool ParseArguments()
         {
-            string strServerPort = arguments.Get("/s", LISTEN_PORT.ToString());
-            string strTimeout = arguments.GetNotExists("/t", TIMEOUT.ToString());
+            var strServerPort = _arguments.Get("/s", ListenPort.ToString());
+            var strTimeout = _arguments.GetNotExists("/t", Timeout.ToString());
 
             if (Utils.IsNumber(strServerPort))
-                serverPort = Convert.ToInt32(strServerPort);
+                _serverPort = Convert.ToInt32(strServerPort);
             else
                 return false;
 
             if (Utils.IsNumber(strTimeout))
-                connTimeout = Convert.ToInt32(strTimeout);
+                _connTimeout = Convert.ToInt32(strTimeout);
             else
                 return false;
 
-            if (serverPort > 65535)
+            if (_serverPort > 65535)
                 return false;
 
             return true;
@@ -72,14 +73,13 @@ namespace EchoTool.Modes
         /// </summary>
         public void Run()
         {
-            TcpEchoServer echoServer = new TcpEchoServer(serverPort);
-            echoServer.ConnectionTimeout = connTimeout;
-            echoServer.OnConnect += new TcpEchoServer.OnConnectDelegate(echoServer_OnConnect);
-            echoServer.OnDisconnect += new TcpEchoServer.OnDisconnectDelegate(echoServer_OnDisconnect);
-            echoServer.OnDataReceived += new TcpEchoServer.DataReceivedDelegate(echoServer_OnDataReceived);
-            echoServer.OnSocketException += new TcpEchoServer.SocketExceptionDelegate(echoServer_OnSocketException);
+            var echoServer = new TcpEchoServer(_serverPort) {ConnectionTimeout = _connTimeout};
+            echoServer.OnConnect += echoServer_OnConnect;
+            echoServer.OnDisconnect += echoServer_OnDisconnect;
+            echoServer.OnDataReceived += echoServer_OnDataReceived;
+            echoServer.OnSocketException += echoServer_OnSocketException;
             
-            Console.WriteLine(string.Format(Messages.TCPServerCaption, serverPort));
+            Console.WriteLine(Messages.TCPServerCaption, _serverPort);
 
             echoServer.Start();            
             Console.ReadKey(true);
@@ -93,7 +93,7 @@ namespace EchoTool.Modes
         private void echoServer_OnConnect(EndPoint clientEndPoint)
         {
             Console.WriteLine();
-            Console.WriteLine(string.Format(Messages.TCPServerConnect, clientEndPoint, DateTime.Now.ToLongTimeString()));            
+            Console.WriteLine(Messages.TCPServerConnect, clientEndPoint, DateTime.Now.ToLongTimeString());            
         }
 
         /// <summary>
@@ -104,12 +104,9 @@ namespace EchoTool.Modes
         {
             Console.WriteLine();
 
-            if (timeout)
-                Console.WriteLine(Messages.TCPSessionTimeout);
-            else
-                Console.WriteLine(Messages.TCPSessionClosedByPeer);
+            Console.WriteLine(timeout ? Messages.TCPSessionTimeout : Messages.TCPSessionClosedByPeer);
 
-            Console.WriteLine(string.Format(Messages.TCPServerCaption, serverPort));
+            Console.WriteLine(Messages.TCPServerCaption, _serverPort);
         }
 
         /// <summary>
@@ -119,10 +116,9 @@ namespace EchoTool.Modes
         private void echoServer_OnSocketException(SocketException socketException)
         {
             Console.Write(Messages.ServerError + ": ");
-            if (socketException.SocketErrorCode == SocketError.AccessDenied)
-                Console.WriteLine(Messages.AddressAlreadyInUse);
-            else
-                Console.WriteLine(socketException.Message);
+            Console.WriteLine(socketException.SocketErrorCode == SocketError.AccessDenied
+                ? Messages.AddressAlreadyInUse
+                : socketException.Message);
         }
 
         /// <summary>
@@ -131,8 +127,8 @@ namespace EchoTool.Modes
         /// <param name="receivedData">Data from client</param>
         private void echoServer_OnDataReceived(byte[] receivedData)
         {
-            string dataString = Encoding.ASCII.GetString(receivedData);
-            Console.WriteLine(string.Format(Messages.TCPServerDataReceived, DateTime.Now.ToLongTimeString(), dataString));
+            var dataString = Encoding.ASCII.GetString(receivedData);
+            Console.WriteLine(Messages.TCPServerDataReceived, DateTime.Now.ToLongTimeString(), dataString);
         }
     }
 }

@@ -9,11 +9,11 @@
  *  Website:        http://bansky.net/echotool
  * 
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net.Sockets;
 
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using EchoTool.Protocols;
 using EchoTool.Resources;
 
@@ -24,20 +24,21 @@ namespace EchoTool.Modes
     /// </summary>
     public class UdpClientMode : IEchoMode
     {
-        const int REMOTE_PORT = 7;
-        const int LOCAL_PORT = 0;
-        const int REPEAT_COUNT = 5;
-        const int TIMEOUT = 5;
+        const int RemotePort = 7;
+        const int LocalPort = 0;
+        const int RepeatCount = 5;
+        const int Timeout = 5;
 
         #region Fields
-        Arguments arguments;
-        int remotePort = REMOTE_PORT;
-        int localPort = LOCAL_PORT;
-        int repeatCount = REPEAT_COUNT;
-        int responseTimeout = TIMEOUT;
-        string echoPattern = string.Empty;
 
-        int echoReceived, echoCorrupted, echoLost;
+        readonly Arguments _arguments;
+        int _remotePort = RemotePort;
+        int _localPort = LocalPort;
+        int _repeatCount = RepeatCount;
+        int _responseTimeout = Timeout;
+        string _echoPattern = string.Empty;
+
+        int _echoReceived, _echoCorrupted, _echoLost;
         #endregion
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace EchoTool.Modes
         /// <param name="arguments">Arguments to server</param>
         public UdpClientMode(Arguments arguments)
         {
-            this.arguments = arguments;
+            _arguments = arguments;
         }
 
         /// <summary>
@@ -55,34 +56,34 @@ namespace EchoTool.Modes
         /// <returns>Returns true if client is ready</returns>
         public bool ParseArguments()
         {
-            string strRemotePort = arguments.GetNotExists("/r", REMOTE_PORT.ToString());
-            string strLocalPort = arguments.GetNotExists("/l", LOCAL_PORT.ToString());
-            string strRepeatCount = arguments.GetNotExists("/n", REPEAT_COUNT.ToString());
-            string strTimeout = arguments.GetNotExists("/t", TIMEOUT.ToString());
+            var strRemotePort = _arguments.GetNotExists("/r", RemotePort.ToString());
+            var strLocalPort = _arguments.GetNotExists("/l", LocalPort.ToString());
+            var strRepeatCount = _arguments.GetNotExists("/n", RepeatCount.ToString());
+            var strTimeout = _arguments.GetNotExists("/t", Timeout.ToString());
 
-            echoPattern = arguments.Get("/d", string.Empty);
+            _echoPattern = _arguments.Get("/d", string.Empty);
 
             if (Utils.IsNumber(strRemotePort))
-                remotePort = Convert.ToInt32(strRemotePort);
+                _remotePort = Convert.ToInt32(strRemotePort);
             else
                 return false;
 
             if (Utils.IsNumber(strLocalPort))
-                localPort = Convert.ToInt32(strLocalPort);
+                _localPort = Convert.ToInt32(strLocalPort);
             else
                 return false;
 
             if (Utils.IsNumber(strRepeatCount))
-                repeatCount = Convert.ToInt32(strRepeatCount);
+                _repeatCount = Convert.ToInt32(strRepeatCount);
             else
                 return false;
 
             if (Utils.IsNumber(strTimeout))
-                responseTimeout = Convert.ToInt32(strTimeout);
+                _responseTimeout = Convert.ToInt32(strTimeout);
             else
                 return false;
 
-            if (remotePort > 65535 || localPort > 65535)
+            if (_remotePort > 65535 || _localPort > 65535)
                 return false;
 
             return true;
@@ -93,29 +94,31 @@ namespace EchoTool.Modes
         /// </summary>
         public void Run()
         {
-            echoReceived = echoCorrupted = echoLost = 0;
+            _echoReceived = _echoCorrupted = _echoLost = 0;
 
-            UdpEchoClient echoClient = new UdpEchoClient(arguments.FirstArgument, remotePort);
-            echoClient.RepeatCount = repeatCount;
-            echoClient.LocalPort = localPort;
-            echoClient.ResponseTimeout = responseTimeout;
-            if (! string.IsNullOrEmpty(echoPattern))
-                echoClient.EchoPattern = Encoding.ASCII.GetBytes(echoPattern);            
+            var echoClient = new UdpEchoClient(_arguments.FirstArgument, _remotePort)
+            {
+                RepeatCount = _repeatCount,
+                LocalPort = _localPort,
+                ResponseTimeout = _responseTimeout
+            };
+            if (! string.IsNullOrEmpty(_echoPattern))
+                echoClient.EchoPattern = Encoding.ASCII.GetBytes(_echoPattern);            
 
-            echoClient.OnHostnameResolved += new UdpEchoClient.HostnameResolvedDelegate(echoClient_OnHostnameResolved);
-            echoClient.OnEchoResponse += new UdpEchoClient.EchoResponseDelegate(echoClient_OnEchoResponse);
-            echoClient.OnSocketException += new UdpEchoClient.SocketExceptionDelegate(echoClient_OnSocketException);
-            echoClient.OnFinish += new UdpEchoClient.FinishDelegate(echoClient_OnFinish);
+            echoClient.OnHostnameResolved += echoClient_OnHostnameResolved;
+            echoClient.OnEchoResponse += echoClient_OnEchoResponse;
+            echoClient.OnSocketException += echoClient_OnSocketException;
+            echoClient.OnFinish += echoClient_OnFinish;
             echoClient.Start();            
         }
 
         /// <summary>
         /// Event handler for host resolving
         /// </summary>
-        /// <param name="hostnameIPEndPoint">server IP end point</param>
-        private void echoClient_OnHostnameResolved(System.Net.IPEndPoint hostnameIPEndPoint)
+        /// <param name="hostnameIpEndPoint">server IP end point</param>
+        private void echoClient_OnHostnameResolved(IPEndPoint hostnameIpEndPoint)
         {
-            Console.WriteLine(string.Format(Messages.HostnameResolved, arguments.FirstArgument, hostnameIPEndPoint.Address.ToString()));
+            Console.WriteLine(Messages.HostnameResolved, _arguments.FirstArgument, hostnameIpEndPoint.Address);
             Console.WriteLine();
         }
 
@@ -126,7 +129,7 @@ namespace EchoTool.Modes
         private void echoClient_OnFinish(bool abort)
         {
             Console.WriteLine();
-            Console.WriteLine(string.Format(Messages.UDPClientStatistics, echoReceived, echoCorrupted, echoLost));
+            Console.WriteLine(Messages.UDPClientStatistics, _echoReceived, _echoCorrupted, _echoLost);
         }
 
         /// <summary>
@@ -142,7 +145,7 @@ namespace EchoTool.Modes
             else if (socketException.SocketErrorCode == SocketError.TimedOut)
             {
                 Console.WriteLine(Messages.ResponseTimeout);
-                echoLost++;
+                _echoLost++;
             }
             else
                 Console.WriteLine(socketException.Message);
@@ -151,23 +154,23 @@ namespace EchoTool.Modes
         /// <summary>
         /// Event handler for echo response
         /// </summary>
-        /// <param name="responseIPEndPoint">Server IP end point</param>
+        /// <param name="responseIpEndPoint">Server IP end point</param>
         /// <param name="echoTime">Time to get echo back</param>
         /// <param name="dataComplete">True if echo arrived complete</param>
-        private void echoClient_OnEchoResponse(System.Net.IPEndPoint responseIPEndPoint, TimeSpan echoTime, bool dataComplete)
+        private void echoClient_OnEchoResponse(IPEndPoint responseIpEndPoint, TimeSpan echoTime, bool dataComplete)
         {
-            string state = string.Empty;
+            string state;
             if (dataComplete)
                 state = Messages.ResponseOK;
             else
             {
                 state = Messages.ResponseCorrupt;
-                echoCorrupted++;
+                _echoCorrupted++;
             }
 
-            Console.WriteLine(string.Format(Messages.ClientResponse, responseIPEndPoint, echoTime.Milliseconds, state));
+            Console.WriteLine(Messages.ClientResponse, responseIpEndPoint, echoTime.Milliseconds, state);
 
-            echoReceived++;
+            _echoReceived++;
         }
     }
 }
