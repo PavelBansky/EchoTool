@@ -121,7 +121,7 @@
     <value>Port already in use</value>
   </data>
   <data name="ClientResponse" xml:space="preserve">
-    <value>Reply from {0}, time {1} ms {2}</value>
+    <value>Reply from {0}, time {1:0} ms {2}</value>
   </data>
   <data name="UDPClientStatistics" xml:space="preserve">
     <value>Statistics: Received={0}, Corupted={1}, Lost={2}</value>
