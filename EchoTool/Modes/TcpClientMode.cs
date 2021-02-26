@@ -171,7 +171,7 @@ namespace EchoTool.Modes
                 _echoCorrupted++;
             }
 
-            Console.WriteLine(Messages.ClientResponse, responseIpEndPoint, echoTime.Milliseconds, state);
+            Console.WriteLine(Messages.ClientResponse, responseIpEndPoint, echoTime.TotalMilliseconds, state);
 
             _echoReceived++;
         }
